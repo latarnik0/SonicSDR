@@ -32,8 +32,8 @@ def digits_to_array(n):
     return signalArr
 
 
-def print_digital_signal(bitArr):
-    bit_rate = 1000       
+def generate_digital_signal(bitArr):
+    bit_rate = 100       
     Tb = 1 / bit_rate 
 
     y = bitArr + [bitArr[-1]]
@@ -52,14 +52,39 @@ def print_digital_signal(bitArr):
     plt.show()
 
 
+def generate_analog_wave(bitArr, bitRate, fCarr=1000, fSampling=44100):
+    T = 1.0 / bitRate
+    
+    samplesPerBit = int(fSampling * T) 
+    allSamples = len(bitArr) * samplesPerBit
+    t = np.arange(allSamples) / fSampling
+
+    wave = np.cos(2 * np.pi * fCarr * t)
+    mappingBits = np.array([1 if int(b) == 0 else -1 for b in bitArr])
+    modulatingSignal = np.repeat(mappingBits, samplesPerBit)
+    modulatedSignal = wave * modulatingSignal
+
+    plt.figure(figsize=(12, 4))
+    plt.plot(t, modulatedSignal, color='#1f77b4', linewidth=1.5)
+    
+    for i in range(1, len(bitArr)):
+        plt.axvline(x=i * T, color='red', linestyle='--', alpha=0.5)
+
+    plt.title(f'Sygnał BPSK | Bity: {bitArr} | Bit Rate: {bitRate} bps')
+    plt.xlabel('Czas [s]')
+    plt.ylabel('Amplituda')
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.show()
+
+
 def main():
     print('Enter any text:')
     initialText = input()
     decimalSum = sum_of_digits(initialText)
     binaryNumber = dec_to_bin(decimalSum)
     bitArray = digits_to_array(binaryNumber)
-    print_digital_signal(bitArray)
-
+    generate_analog_wave(bitArray, 100)
 
 
 main()
